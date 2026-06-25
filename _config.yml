@@ -1,0 +1,12 @@
+title: KAPPitbahayan Virtual Library
+description: Study resources, references, and links curated for the community.
+baseurl: ""
+url: ""
+
+plugins:
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-default-layout
+  - jekyll-titles-from-headings
+
+markdown: kramdown

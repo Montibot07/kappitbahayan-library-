@@ -1,0 +1,392 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KAPPitbahayan Virtual Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --maroon:   #7B1C2E;
+      --maroon-d: #5A1320;
+      --gold:     #C49A22;
+      --cream:    #FDF8F0;
+      --ink:      #1A1A1A;
+      --muted:    #6B6B6B;
+      --border:   #E5DDD0;
+      --chip-bg:  #F0E8D8;
+      --radius:   6px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--maroon);
+      color: #fff;
+      padding: 2.5rem 2rem 2rem;
+      border-bottom: 4px solid var(--gold);
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    header p {
+      margin-top: .5rem;
+      font-size: .875rem;
+      opacity: .8;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    .last-updated {
+      font-size: .75rem;
+      opacity: .65;
+      white-space: nowrap;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      max-width: 1100px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+    }
+    #search {
+      flex: 1 1 240px;
+      padding: .55rem .85rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-family: inherit;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s;
+    }
+    #search:focus { border-color: var(--maroon); }
+
+    #category-filter {
+      padding: .55rem .85rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-family: inherit;
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      min-width: 160px;
+    }
+    #category-filter:focus { border-color: var(--maroon); }
+
+    .count-label {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    thead tr {
+      background: var(--maroon);
+      color: #fff;
+    }
+    th {
+      padding: .75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: .8rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover { background: var(--maroon-d); }
+    th .sort-icon { opacity: .5; margin-left: .3em; }
+    th.asc .sort-icon::after  { content: ' ▲'; }
+    th.desc .sort-icon::after { content: ' ▼'; }
+    th:not(.asc):not(.desc) .sort-icon::after { content: ' ⇅'; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--chip-bg); }
+
+    td {
+      padding: .7rem 1rem;
+      vertical-align: top;
+      line-height: 1.5;
+      max-width: 320px;
+    }
+
+    /* Link cells */
+    td a {
+      color: var(--maroon);
+      font-weight: 500;
+      text-decoration: none;
+      word-break: break-word;
+    }
+    td a:hover { text-decoration: underline; color: var(--maroon-d); }
+
+    /* Category chip */
+    .chip {
+      display: inline-block;
+      background: var(--chip-bg);
+      color: var(--maroon-d);
+      border: 1px solid #D9CCBA;
+      border-radius: 20px;
+      padding: .15rem .6rem;
+      font-size: .75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* Empty / loading states */
+    .state-row td {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>📚 KAPPitbahayan Virtual Library</h1>
+      <p>Study spaces, dormitories, and curated online resources for the community.</p>
+    </div>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+</header>
+
+<div class="controls">
+  <input id="search" type="search" placeholder="Search resources…" aria-label="Search" />
+  <select id="category-filter" aria-label="Filter by category">
+    <option value="">All categories</option>
+  </select>
+  <span class="count-label" id="count-label"></span>
+</div>
+
+<div class="table-wrap">
+  <table id="lib-table" role="grid">
+    <thead id="thead"><tr></tr></thead>
+    <tbody id="tbody">
+      <tr class="state-row"><td colspan="99">Loading data…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  Data sourced from the KAPPitbahayan spreadsheet · refreshes hourly via GitHub Actions
+</footer>
+
+<script>
+/* ── CSV parser (handles quoted fields with commas/newlines) ── */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i+1];
+    if (inQ) {
+      if (c === '"' && n === '"') { field += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') { inQ = true; }
+      else if (c === ',') { row.push(field.trim()); field = ''; }
+      else if (c === '\n' || (c === '\r' && n === '\n')) {
+        if (c === '\r') i++;
+        row.push(field.trim()); field = '';
+        if (row.some(Boolean)) rows.push(row);
+        row = [];
+      } else { field += c; }
+    }
+  }
+  if (field || row.length) { row.push(field.trim()); if (row.some(Boolean)) rows.push(row); }
+  return rows;
+}
+
+/* ── Detect which column might be a URL ── */
+function looksLikeUrl(val) {
+  return /^https?:\/\//i.test(val?.trim());
+}
+
+/* ── Detect a probable "category" column ── */
+function guessCategoryCol(headers) {
+  const keywords = ['category','type','subject','topic','kind','genre','area','field','tag'];
+  for (const kw of keywords)
+    for (let i = 0; i < headers.length; i++)
+      if (headers[i].toLowerCase().includes(kw)) return i;
+  return -1;
+}
+
+/* ── Main ── */
+(async () => {
+  // Jekyll bakes the CSV into the page via Liquid
+  const rawCSV = `{% include_relative _data/library.csv %}`;
+
+  let rows;
+  try {
+    rows = parseCSV(rawCSV.trim());
+  } catch(e) {
+    document.getElementById('tbody').innerHTML =
+      '<tr class="state-row"><td colspan="99">Could not parse data. Please check the CSV.</td></tr>';
+    return;
+  }
+
+  if (rows.length < 2) {
+    document.getElementById('tbody').innerHTML =
+      '<tr class="state-row"><td colspan="99">No data found.</td></tr>';
+    return;
+  }
+
+  const headers = rows[0];
+  const data    = rows.slice(1);
+  const catCol  = guessCategoryCol(headers);
+
+  /* Build header row */
+  const theadRow = document.querySelector('#thead tr');
+  headers.forEach((h, i) => {
+    const th = document.createElement('th');
+    th.innerHTML = `${h} <span class="sort-icon"></span>`;
+    th.dataset.col = i;
+    th.addEventListener('click', () => sortBy(i, th));
+    theadRow.appendChild(th);
+  });
+
+  /* Populate category dropdown */
+  const catSet = new Set();
+  if (catCol >= 0) {
+    data.forEach(r => { if (r[catCol]) catSet.add(r[catCol].trim()); });
+    const sel = document.getElementById('category-filter');
+    [...catSet].sort().forEach(cat => {
+      const o = document.createElement('option');
+      o.value = cat; o.textContent = cat;
+      sel.appendChild(o);
+    });
+  } else {
+    document.getElementById('category-filter').style.display = 'none';
+  }
+
+  /* Timestamp */
+  document.getElementById('last-updated').textContent =
+    'Last updated: ' + new Date().toLocaleString('en-PH', {timeZone:'Asia/Manila', dateStyle:'medium', timeStyle:'short'});
+
+  /* ── Render ── */
+  let sortCol = -1, sortAsc = true;
+  let currentData = [...data];
+
+  function render(rows) {
+    const tbody = document.getElementById('tbody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="99">No matching resources found.</td></tr>';
+      document.getElementById('count-label').textContent = '0 results';
+      return;
+    }
+    document.getElementById('count-label').textContent = `${rows.length} resource${rows.length !== 1 ? 's' : ''}`;
+    tbody.innerHTML = rows.map(row => `
+      <tr>
+        ${headers.map((_, i) => {
+          const val = row[i] ?? '';
+          if (i === catCol && val) return `<td><span class="chip">${escHtml(val)}</span></td>`;
+          if (looksLikeUrl(val))   return `<td><a href="${escHtml(val)}" target="_blank" rel="noopener">Open link ↗</a></td>`;
+          return `<td>${escHtml(val)}</td>`;
+        }).join('')}
+      </tr>`).join('');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function applyFilters() {
+    const q   = document.getElementById('search').value.toLowerCase();
+    const cat = document.getElementById('category-filter').value;
+    currentData = data.filter(row => {
+      const matchQ   = !q   || row.some(c => c.toLowerCase().includes(q));
+      const matchCat = !cat || (catCol >= 0 && row[catCol]?.trim() === cat);
+      return matchQ && matchCat;
+    });
+    if (sortCol >= 0) applySortToCurrentData();
+    else render(currentData);
+  }
+
+  function applySortToCurrentData() {
+    currentData.sort((a, b) => {
+      const av = (a[sortCol] ?? '').toLowerCase();
+      const bv = (b[sortCol] ?? '').toLowerCase();
+      return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    render(currentData);
+  }
+
+  function sortBy(col, thEl) {
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('th').forEach(t => t.classList.remove('asc','desc'));
+    thEl.classList.add(sortAsc ? 'asc' : 'desc');
+    applySortToCurrentData();
+  }
+
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('category-filter').addEventListener('change', applyFilters);
+
+  render(data);
+  document.getElementById('count-label').textContent = `${data.length} resource${data.length !== 1 ? 's' : ''}`;
+})();
+</script>
+
+</body>
+</html>
