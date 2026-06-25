@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KAPPitbahayan Virtual Library · CSSP FSTC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #faf9f6;
+      --surface: #ffffff;
+      --border: #e5e2d9;
+      --border-strong: #c8c4b8;
+      --text: #1a1917;
+      --text-secondary: #6b6860;
+      --text-hint: #9c9a94;
+      --accent-purple: #7F77DD;
+      --accent-teal: #1D9E75;
+      --accent-amber: #BA7517;
+      --tag-pdf-bg: #E1F5EE; --tag-pdf-text: #085041;
+      --tag-link-bg: #FAEEDA; --tag-link-text: #633806;
+      --tag-book-bg: #EEEDFE; --tag-book-text: #3C3489;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1917;
+        --surface: #232220;
+        --border: #2e2c29;
+        --border-strong: #3d3b37;
+        --text: #f0ede6;
+        --text-secondary: #9c9a94;
+        --text-hint: #6b6860;
+        --tag-pdf-bg: #04342C; --tag-pdf-text: #9FE1CB;
+        --tag-link-bg: #412402; --tag-link-text: #FAC775;
+        --tag-book-bg: #26215C; --tag-book-text: #CECBF6;
+      }
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .wordmark { display: flex; flex-direction: column; gap: 3px; }
+    .wordmark-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+    .wordmark-sub {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      max-width: 380px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+    }
+    .search-wrap svg { flex-shrink: 0; color: var(--text-hint); }
+    .search-wrap input {
+      flex: 1;
+      font-size: 14px;
+      font-family: inherit;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      padding: 9px 0;
+      outline: none;
+    }
+    .search-wrap input::placeholder { color: var(--text-hint); }
+
+    /* ── Filters ── */
+    .filters {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-label { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
+    .chip {
+      font-size: 12px;
+      font-family: inherit;
+      padding: 4px 14px;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--border-strong); color: var(--text); }
+    .chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+    /* ── Main shelf ── */
+    main { flex: 1; padding: 1.5rem 2rem; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+    .count-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.15s, transform 0.1s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
+    .card-spine {
+      width: 32px;
+      height: 3px;
+      border-radius: 2px;
+      margin-bottom: 4px;
+    }
+    .spine-pdf   { background: var(--accent-teal); }
+    .spine-link  { background: var(--accent-amber); }
+    .spine-book  { background: var(--accent-purple); }
+
+    .card-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .card-author {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      align-self: flex-start;
+      margin-top: auto;
+      letter-spacing: 0.02em;
+    }
+    .tag-pdf  { background: var(--tag-pdf-bg);  color: var(--tag-pdf-text); }
+    .tag-link { background: var(--tag-link-bg); color: var(--tag-link-text); }
+    .tag-book { background: var(--tag-book-bg); color: var(--tag-book-text); }
+
+    .card-open {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      text-decoration: none;
+    }
+    .card-open:hover { color: var(--text); }
+
+    /* ── Empty / Error states ── */
+    .empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+      display: none;
+    }
+    .empty-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 0.5rem; }
+
+    /* ── Banner ── */
+    .request-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0.9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .request-bar span { font-size: 13px; color: var(--text-secondary); }
+    .request-link {
+      font-size: 13px;
+      font-family: inherit;
+      padding: 6px 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .request-link:hover { background: var(--bg); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      font-size: 11px;
+      color: var(--text-hint);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* ── Loader ── */
+    .loader {
+      display: flex;
+      gap: 6px;
+      padding: 2rem;
+      justify-content: center;
+    }
+    .loader span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-hint);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .loader span:nth-child(2) { animation-delay: 0.15s; }
+    .loader span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+    @media (max-width: 600px) {
+      header, .filters, main, .request-bar { padding-left: 1rem; padding-right: 1rem; }
+      .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .search-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wordmark">
+      <div class="wordmark-title">KAPPitbahayan</div>
+      <div class="wordmark-sub">CSSP FSTC · Virtual Library</div>
+    </div>
+    <div class="search-wrap" role="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search titles or authors…" aria-label="Search the library" />
+    </div>
+  </header>
+
+  <nav class="filters" aria-label="Filter by type">
+    <span class="filter-label">Show</span>
+    <button class="chip active" data-filter="all"  onclick="setFilter('all')">All</button>
+    <button class="chip"        data-filter="pdf"  onclick="setFilter('pdf')">PDFs</button>
+    <button class="chip"        data-filter="link" onclick="setFilter('link')">Links</button>
+    <button class="chip"        data-filter="book" onclick="setFilter('book')">Books</button>
+  </nav>
+
+  <main>
+    <p class="count-label" id="countLabel" aria-live="polite">Loading collection…</p>
+    <div class="loader" id="loader" aria-label="Loading">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="grid" id="grid" role="list"></div>
+    <div class="empty" id="emptyMsg">
+      <p class="empty-title">Nothing found</p>
+      <p>Try a different search or filter.</p>
+    </div>
+  </main>
+
+  <div class="request-bar">
+    <span>Don't see what you need?</span>
+    <a class="request-link"
+       href="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform"
+       target="_blank" rel="noopener">
+      Request a resource →
+    </a>
+  </div>
+
+  <footer>Virtual Library · CSSP FSTC · as of Aug 16</footer>
+
+  <script>
+    const CSV_URL =
+      'https://docs.google.com/spreadsheets/d/e/' +
+      '2PACX-1vTwI8N3nm2-Ha1PD5TfNfeN3uT0N0aF0HAT597S1U5yzWWmvY2WXYyql8HUJo-nTIvRXQQ8-WYETOst' +
+      '/pub?gid=1986119007&single=true&output=csv';
+
+    let allItems = [];
+    let currentFilter = 'all';
+
+    function detectType(link) {
+      if (!link) return 'book';
+      const l = link.toLowerCase();
+      if (l.endsWith('.pdf') || l.includes('drive.google') || l.includes('pdf')) return 'pdf';
+      if (l.startsWith('http')) return 'link';
+      return 'pdf';
+    }
+
+    function parseCSV(text) {
+      const rows = text.trim().split('\n').map(r =>
+        r.split(',').map(c => c.replace(/^"|"$/g, '').trim())
+      );
+      if (rows.length < 2) return [];
+      const headers = rows[0].map(h => h.toLowerCase());
+      const titleIdx  = headers.findIndex(h => h.includes('title'));
+      const authorIdx = headers.findIndex(h => h.includes('author'));
+      const linkIdx   = headers.findIndex(h => h.includes('link'));
+
+      const items = [];
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        const title = (titleIdx >= 0 ? r[titleIdx] : '') || '';
+        if (!title || title.toLowerCase() === 'title of the book') continue;
+        items.push({
+          title,
+          author: authorIdx >= 0 ? (r[authorIdx] || '') : '',
+          link:   linkIdx   >= 0 ? (r[linkIdx]   || '') : '',
+          type:   detectType(linkIdx >= 0 ? r[linkIdx] : '')
+        });
+      }
+      return items;
+    }
+
+    function renderGrid(items) {
+      const grid    = document.getElementById('grid');
+      const empty   = document.getElementById('emptyMsg');
+      const loader  = document.getElementById('loader');
+      const count   = document.getElementById('countLabel');
+
+      loader.style.display = 'none';
+
+      if (!items.length) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        count.textContent = '0 items';
+        return;
+      }
+      empty.style.display = 'none';
+      count.textContent = `${items.length} item${items.length !== 1 ? 's' : ''} in the collection`;
+
+      grid.innerHTML = items.map(item => {
+        const spineClass = 'spine-' + item.type;
+        const tagClass   = 'tag-'   + item.type;
+        const tagLabel   = item.type === 'pdf' ? 'PDF'
+                         : item.type === 'link' ? 'Link' : 'Book';
+
+        const isExternal = item.link && item.link.startsWith('http');
+        const linkAttr   = item.link
+          ? `href="${item.link}" target="_blank" rel="noopener"`
+          : '';
+        const openHtml = item.link
+          ? `<a class="card-open" ${linkAttr} aria-label="Open ${item.title}">
+               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+               Open resource
+             </a>`
+          : '';
+
+        return `<article class="card" role="listitem">
+          <div class="card-spine ${spineClass}" aria-hidden="true"></div>
+          <div class="card-title">${item.title}</div>
+          <div class="card-author">${item.author || '—'}</div>
+          <span class="card-tag ${tagClass}">${tagLabel}</span>
+          ${openHtml}
+        </article>`;
+      }).join('');
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = allItems;
+      if (currentFilter !== 'all')
+        filtered = filtered.filter(i => i.type === currentFilter);
+      if (q)
+        filtered = filtered.filter(i =>
+          i.title.toLowerCase().includes(q) ||
+          i.author.toLowerCase().includes(q)
+        );
+      renderGrid(filtered);
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      document.querySelectorAll('.chip').forEach(c =>
+        c.classList.toggle('active', c.dataset.filter === f)
+      );
+      applyFilters();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    fetch(CSV_URL)
+      .then(r => {
+        if (!r.ok) throw new Error('Network error');
+        return r.text();
+      })
+      .then(text => {
+        allItems = parseCSV(text);
+        applyFilters();
+      })
+      .catch(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('countLabel').textContent = 'Could not load data. Check your sheet is published.';
+      });
+  </script>
+</body>
+</html>
