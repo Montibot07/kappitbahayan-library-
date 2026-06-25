@@ -14,7 +14,7 @@ Go to **Settings → Actions → General → Workflow permissions** and enable:
 ### 3. Run the workflow once manually
 Go to **Actions → Fetch Sheet & Deploy → Run workflow** to trigger the first build without waiting an hour.
 
-## How it works
+## How it works 
 
 ```
 Every hour
